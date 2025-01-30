@@ -1,13 +1,8 @@
--- /lua/plugins/theme.lua
-
 return {
-    "folke/tokyonight.nvim",
-    lazy = false,
+    "catppuccin/nvim",
+    name = "catppuccin",
     priority = 1000,
     config = function()
-				require("tokyonight").setup({
-						transparent = true,
-				})
-        vim.cmd([[colorscheme tokyonight-storm]])
-		end,
+        vim.cmd.colorscheme("catppuccin-mocha")
+    end,
 }
