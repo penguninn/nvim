@@ -13,11 +13,13 @@ return {
 					"lua_ls",
 					"html",
 					"ts_ls",
+					"eslint",
 					"tailwindcss",
 					"pyright",
 					"yamlls",
 					"jdtls",
 					"clangd",
+					"lemminx",
 				},
 			})
 		end,
@@ -38,10 +40,14 @@ return {
 	},
 	{
 		"neovim/nvim-lspconfig",
+		dependencies = {
+			"hrsh7th/cmp-nvim-lsp",
+		},
 		config = function()
 			local lspconfig = require("lspconfig")
 			local util = require("lspconfig.util")
-			local capabilities = vim.lsp.protocol.make_client_capabilities()
+			-- local capabilities = vim.lsp.protocol.make_client_capabilities()
+			local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
 			lspconfig.lua_ls.setup({
 				cmd = { "lua-language-server" },
@@ -73,8 +79,23 @@ return {
 			})
 
 			lspconfig.clangd.setup({
-				cmd = { "clangd" },
-				root_dir = util.root_pattern("compile_commands.json", ".git"),
+				capabilities = capabilities,
+				cmd = {
+					"clangd",
+					"--background-index",
+					"--clang-tidy",
+					"--header-insertion=never",
+				},
+				init_options = {
+					clangdFileStatus = true,
+				},
+			})
+
+			lspconfig.lemminx.setup({
+				capabilities = capabilities,
+			})
+
+			lspconfig.eslint.setup({
 				capabilities = capabilities,
 			})
 		end,
