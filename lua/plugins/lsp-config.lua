@@ -12,6 +12,7 @@ return {
 				ensure_installed = {
 					"lua_ls",
 					"html",
+					"cssls",
 					"ts_ls",
 					"eslint",
 					"tailwindcss",
@@ -52,10 +53,50 @@ return {
 			lspconfig.lua_ls.setup({
 				cmd = { "lua-language-server" },
 				capabilities = capabilities,
+				on_init = function(client)
+					if client.workspace_folders then
+						local path = client.workspace_folders[1].name
+						if
+							path ~= vim.fn.stdpath("config")
+							and (vim.loop.fs_stat(path .. "/.luarc.json") or vim.loop.fs_stat(path .. "/.luarc.jsonc"))
+						then
+							return
+						end
+					end
+
+					client.config.settings.Lua = vim.tbl_deep_extend("force", client.config.settings.Lua, {
+						runtime = {
+							version = "LuaJIT",
+						},
+						workspace = {
+							checkThirdParty = false,
+							library = {
+								vim.env.VIMRUNTIME,
+							},
+						},
+					})
+				end,
+				settings = {
+					Lua = {},
+				},
 			})
 
 			lspconfig.ts_ls.setup({
 				capabilities = capabilities,
+				-- default_config = {
+				-- 	init_options = { hostInfo = "neovim" },
+				-- 	cmd = { "typescript-language-server", "--stdio" },
+				-- 	filetypes = {
+				-- 		"javascript",
+				-- 		"javascriptreact",
+				-- 		"javascript.jsx",
+				-- 		"typescript",
+				-- 		"typescriptreact",
+				-- 		"typescript.tsx",
+				-- 	},
+				-- 	root_dir = util.root_pattern("tsconfig.json", "jsconfig.json", "package.json", ".git"),
+				-- 	single_file_support = true,
+				-- },
 			})
 
 			lspconfig.sqlls.setup({
@@ -63,6 +104,10 @@ return {
 			})
 
 			lspconfig.html.setup({
+				capabilities = capabilities,
+				filetypes = { "html", "javascriptreact", "typescriptreact" },
+			})
+			lspconfig.cssls.setup({
 				capabilities = capabilities,
 			})
 
